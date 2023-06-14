@@ -3,11 +3,11 @@ import { RequestHandler } from "express";
 import { User } from "../models/user";
 
 export const createUser: RequestHandler = async (req, res, next) => {
-  const users = await User.create({ ...req.body });
+  const user = await User.create({ ...req.body });
   res.set('Access-Control-Allow-Origin', '*');
   return res
     .status(200)
-    .json({ message: "User created successfully", data: users });
+    .json({ message: "User created successfully", data: user });
 };
 
 export const deleteUser: RequestHandler = async (req, res, next) => {

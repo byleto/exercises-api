@@ -1,3 +1,4 @@
+import { Exercise } from './../models/exercise';
 import { Sequelize } from "sequelize-typescript";
 import { User } from "../models/user";
 
@@ -8,7 +9,7 @@ const connection = new Sequelize({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   logging: false,
-  models: [User],
+  models: [User, Exercise],
 });
 
 export default connection;
