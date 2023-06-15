@@ -1,5 +1,6 @@
-module.exports = {
-    preset: 'ts-jest',
-    testEnvironment: 'node',
-    setupFiles: ['dotenv/config'],
-  };
+export default {
+  clearMocks: true,
+  collectCoverage: true,
+  coverageDirectory: "coverage",
+  coverageProvider: "v8",
+};

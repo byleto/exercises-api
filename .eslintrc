@@ -1,6 +1,13 @@
 {
-  "parser": "@typescript-eslint/parser",
-  "extends": ["plugin:@typescript-eslint/recommended"],
-  "parserOptions": { "ecmaVersion": 2018, "sourceType": "module" },
-  "rules": {}
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "extends": ["eslint:recommended", "plugin:node/recommended", "prettier"],
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
+  "rules": {},
+  "plugins": ["prettier"],
+  "jest": true
 }
