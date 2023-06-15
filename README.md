@@ -1,5 +1,9 @@
 # Exercises API documentation
 
+Notes:
+* There is not seed data for users however you can use the users endpoint to create new users and use those users to create new exercises
+* There is a postman collection on the repository on test the api easily. 
+
 ## Starts the API
 Run the API with Mysql Server:
 ```bash
