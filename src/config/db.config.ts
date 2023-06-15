@@ -1,6 +1,6 @@
-import { Exercise_Busuu } from './../models/exercise';
+import { Exercise } from './../models/exercise';
 import { Sequelize } from "sequelize-typescript";
-import { User_Busuu } from "../models/user";
+import { User } from "../models/user";
 
 const connection = new Sequelize({
   dialect: "mysql",
@@ -9,7 +9,7 @@ const connection = new Sequelize({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   logging: true,
-  models: [User_Busuu, Exercise_Busuu],
+  models: [User, Exercise],
 });
 
 export default connection;

@@ -3,7 +3,7 @@ import { Column, DataType, Model, Table } from 'sequelize-typescript';
 @Table({
   tableName: 'exercises_table',
 })
-export class Exercise_Busuu extends Model {
+export class Exercise extends Model {
   @Column({
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,

@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import { getAllExercisesDto, saveExcercise } from '../services/exercise.service';
-import { Exercise_Busuu } from './../models/exercise';
+import { Exercise } from './../models/exercise';
 import { HttpCodes } from '../constants';
 import { ReachLimitError } from '../exceptions/ReachLimitError';
 import { NotFoundError } from '../exceptions/NotFoundError';
@@ -32,8 +32,8 @@ export const deleteExercise: RequestHandler = async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   const { id } = req.params;
   try {
-    const deletedExercise: Exercise_Busuu | null = await Exercise_Busuu.findByPk(id);
-    await Exercise_Busuu.destroy({ where: { id } });
+    const deletedExercise: Exercise | null = await Exercise.findByPk(id);
+    await Exercise.destroy({ where: { id } });
     return res.status(HttpCodes.success).json({ message: 'Exercise deleted successfully', data: deletedExercise });
   } catch (err: any) {
     return res.status(HttpCodes.serviceUnavailable).json({
