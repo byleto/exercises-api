@@ -2,6 +2,15 @@ import { RequestHandler } from 'express';
 import { getAllExercisesDto, saveExcercise } from '../services/exercise.service';
 import { Exercise_Busuu } from './../models/exercise';
 import { HttpCodes } from '../constants';
+import { ReachLimitError } from '../exceptions/ReachLimitError';
+import { NotFoundError } from '../exceptions/NotFoundError';
+
+const getErrorStatusCode = (error: any) => {
+  if (error instanceof ReachLimitError) {
+    return HttpCodes.badRequest;
+  }
+  return error instanceof NotFoundError ? HttpCodes.notFound : HttpCodes.serviceUnavailable;
+};
 
 export const createExercise: RequestHandler = async (req, res) => {
   try {
@@ -9,13 +18,10 @@ export const createExercise: RequestHandler = async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
     return res.status(HttpCodes.created).json({ message: 'Exercise created successfully', created_exercise: exercise });
   } catch (err: any) {
-    let statusCode = err.message === 'User not found' ? HttpCodes.notFound : HttpCodes.serviceUnavailable;
-    if (err.message === 'The user has reach the allowed number of exercises.') {
-      statusCode = HttpCodes.badRequest;
-    }
+    const statusCode =getErrorStatusCode(err)
     return res.status(statusCode).json({
       error: {
-        code: HttpCodes.notFound,
+        code: statusCode,
         message: `Invalid request, ${err.message}`,
       },
     });

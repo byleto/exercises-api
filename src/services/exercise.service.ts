@@ -1,6 +1,8 @@
 import { Exercise_Busuu } from '../models/exercise';
 import { User_Busuu } from '../models/user';
 import isEmpty from 'lodash/isEmpty';
+import { ReachLimitError } from '../exceptions/ReachLimitError';
+import { NotFoundError } from '../exceptions/NotFoundError';
 
 const MAX_NUMBER_OF_EXERCISES = 10;
 
@@ -41,7 +43,7 @@ export const getAllExercisesDto = async () => {
 export const saveExcercise = async (exerciseEntryDTO: ExerciseRequestDTO) => {
   const user: User_Busuu | null = await User_Busuu.findByPk(exerciseEntryDTO.user_id);
   if (isEmpty(user)) {
-    throw new Error('User not found');
+    throw new NotFoundError('User not found');
   }
   const countExistingExercises = await Exercise_Busuu.count({
     where: {
@@ -49,7 +51,7 @@ export const saveExcercise = async (exerciseEntryDTO: ExerciseRequestDTO) => {
     },
   });
   if (countExistingExercises === MAX_NUMBER_OF_EXERCISES) {
-    throw new Error('The user has reach the allowed number of exercises.');
+    throw new ReachLimitError();
   }
   const exercise = await Exercise_Busuu.create({
     content: exerciseEntryDTO.content,
