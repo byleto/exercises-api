@@ -1,9 +1,10 @@
-import e from 'express';
-import { Exercise } from '../models/exercise';
-import { User } from '../models/user';
+import { Exercise_Busuu } from '../models/exercise';
+import { User_Busuu } from '../models/user';
 import isEmpty from 'lodash/isEmpty';
 
-export type exerciseDTO = {
+const MAX_NUMBER_OF_EXERCISES = 10;
+
+export type ExerciseResponseDTO = {
   id?: string;
   user_id: string;
   content: string;
@@ -11,32 +12,48 @@ export type exerciseDTO = {
   user: { name: string };
 };
 
-export type ExerciseEntryDTO = {
+export type ExerciseRequestDTO = {
   user_id: string;
   content: string;
 };
 
+const buildExerciseDTO = (exercise: Exercise_Busuu, user: User_Busuu | null): ExerciseResponseDTO => {
+  const {
+    ['updatedAt']: updatedAt,
+    createdAt: created_at,
+    exercise_id: id,
+    ...exerciseWithFormat
+  } = exercise.dataValues;
+  return { id, ...exerciseWithFormat, created_at, user: { name: user?.name } };
+};
+
 export const getAllExercisesDto = async () => {
-  const allExercise: Exercise[] = await Exercise.findAll();
+  const allExercise: Exercise_Busuu[] = await Exercise_Busuu.findAll();
   const exercises = Promise.all(
-    allExercise.map(async (exercise: Exercise) => {
-      const user: User | null = await User.findByPk(exercise.dataValues.userId);
-      const userName = !isEmpty(user) ? user.name : 'User not found';
-      const { ['updatedAt']: updatedAt, ...exerciseWithoutUpdatedAt } = exercise.dataValues;
-      return { ...exerciseWithoutUpdatedAt, user: { name: userName } };
+    allExercise.map(async (exercise: Exercise_Busuu) => {
+      const user: User_Busuu | null = await User_Busuu.findByPk(exercise.dataValues.user_id);
+      return buildExerciseDTO(exercise, user);
     }),
   );
   return exercises;
 };
 
-export const saveExcercise = async (exerciseEntryDTO: ExerciseEntryDTO) => {
-  const user: User | null = await User.findByPk(exerciseEntryDTO.user_id);
+export const saveExcercise = async (exerciseEntryDTO: ExerciseRequestDTO) => {
+  const user: User_Busuu | null = await User_Busuu.findByPk(exerciseEntryDTO.user_id);
   if (isEmpty(user)) {
-    //trow error message return a 404
+    throw new Error('User not found');
   }
-  //custom query to get the exercise by user id and do not allow more that 10
-  // try catch error return 502
-  const exercise = await Exercise.create({ content: exerciseEntryDTO.content, userId: exerciseEntryDTO.user_id });
-  const { ['updatedAt']: updatedAt, ...exerciseWithoutUpdatedAt } = exercise.dataValues;
-  return { ...exerciseWithoutUpdatedAt, user: { name: user?.name } };
+  const countExistingExercises = await Exercise_Busuu.count({
+    where: {
+      user_id: user.user_id,
+    },
+  });
+  if (countExistingExercises === MAX_NUMBER_OF_EXERCISES) {
+    throw new Error('The user has reach the allowed number of exercises.');
+  }
+  const exercise = await Exercise_Busuu.create({
+    content: exerciseEntryDTO.content,
+    user_id: exerciseEntryDTO.user_id,
+  });
+  return buildExerciseDTO(exercise, user);
 };
